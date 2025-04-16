@@ -1,8 +1,6 @@
 # requirements.txt
 
 Cython==3.0.12
-Kivy==2.3.1
-Kivy-Garden==0.1.5
 Markdown==3.7
 MarkupSafe==3.0.2
 PyYAML==6.0.2
@@ -14,7 +12,6 @@ arch==7.2.0
 astunparse==1.6.3
 babel==2.17.0
 beautifulsoup4==4.13.3
-buildozer==1.5.0
 certifi==2025.1.31
 chardet==5.2.0
 charset-normalizer==3.4.1
@@ -44,12 +41,6 @@ jieba==0.42.1
 jieba3k==0.35.1
 joblib==1.4.2
 keras==3.9.2
-kivy-deps.angle==0.4.0
-kivy-deps.glew==0.3.1
-kivy_deps.gstreamer==0.3.4
-kivy_deps.sdl2==0.8.0
-kivy_garden.matplotlib==0.1.1.dev0
-kivymd==1.2.0
 kiwisolver==1.4.8
 libclang==18.1.1
 lxml==4.9.3
