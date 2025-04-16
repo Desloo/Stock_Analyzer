@@ -1,6 +1,6 @@
 # Stock Analysis PC - LSTM & Sentiment Tool
 
-![Screenshot of the main plot window](https://drive.google.com/file/d/13wt08BvZX0U269wDgbIYRJzY7BP5AQHb/view?usp=sharing)
+![Screenshot of the main plot window](preview_stock_analyzer.png)
 
 ## Description
 
