@@ -47,11 +47,11 @@ This tool is intended for educational and informational purposes.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+    git clone https://github.com/Desloo/Stock_Analyzer.git
     ```
 2.  **Navigate into the directory:**
     ```bash
-    cd YOUR_REPO_NAME
+    cd Stock_Analyzer
     ```
 3.  **(Recommended) Create and activate a virtual environment:**
     ```bash
@@ -75,7 +75,7 @@ This tool is intended for educational and informational purposes.
 
 Currently, a pre-built version is provided **only for Windows (64-bit)**. This executable is packaged within a `.zip` archive that contains all necessary files.
 
-1.  **Navigate to Releases:** Go to the [Releases](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/releases) page of this repository. 
+1.  **Navigate to Releases:** Go to the [Releases](https://github.com/Desloo/Stock_Analyzer/releases) page of this repository. 
 2.  **Download the Archive:** Find the latest release and download the `.zip` file listed under "Assets" (e.g., `StockAnalysisPC-v1.0-Windows.zip`).
 3.  **Extract the Archive:** Once downloaded, **extract the entire contents** of the `.zip` file to a new folder on your computer. Do **not** try to run the executable directly from within the zip file viewer.
 4.  **Open the Extracted Folder:** Navigate into the folder created during extraction (it will likely be named `Stock Analyzer` or similar, matching the folder inside the zip).
@@ -99,4 +99,4 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 ## Feedback & Contact
 
 *   Feedback is welcome! Please use the "Feedback" button within the application or open an issue on GitHub.
-*   Check out the demo video on YouTube: [Link to your YouTube video]
+*   Check out the demo video on YouTube: Preparing

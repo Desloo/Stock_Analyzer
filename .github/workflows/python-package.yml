@@ -1,0 +1,51 @@
+# .github/workflows/python_ci.yml (choose a name)
+
+name: Python Application CI
+
+on:
+  push:
+    branches: [ "master" ] 
+  pull_request:
+    branches: [ "master" ] 
+
+jobs:
+  lint_and_check: 
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    # --- UPDATED: Use actions/checkout@v4 ---
+    - uses: actions/checkout@v4
+
+    # --- UPDATED: Use actions/setup-python@v5 ---
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    # --- ADDED: Install Tkinter system dependency for Ubuntu runner ---
+    - name: Install OS dependencies (Tkinter)
+      run: |
+        sudo apt-get update && sudo apt-get install -y python3-tk
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install flake8 separately for linting
+        python -m pip install flake8
+        # Install project requirements (this will test if they install correctly)
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      # Note: Tensorflow installation can be time-consuming here.
+
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        echo "Running flake8 syntax/error checks..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        echo "Running flake8 style checks (as warnings)..."
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
