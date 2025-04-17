@@ -87,6 +87,8 @@ Currently, a pre-built version is provided **only for Windows (64-bit)**. This e
 
 For detailed information on features, usage, and the model, please refer to the bundled documentation:
 [Stock Analysis PC.pdf](./Stock%20Analysis%20PC.pdf)
+Mathematical Model Breakdown:
+[Model Details PDF](stock_analyzer_model.pdf)
 
 ## Disclaimer
 
