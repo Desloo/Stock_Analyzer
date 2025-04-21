@@ -102,4 +102,4 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 ## Feedback & Contact
 
 *   Feedback is welcome! Please use the "Feedback" button within the application or open an issue on GitHub.
-*   Check out the demo video on YouTube: Preparing
+*   Check out the demo video on YouTube: https://youtu.be/c9qvytfMsK4
