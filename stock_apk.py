@@ -9,6 +9,9 @@ from datetime import datetime, timedelta
 import matplotlib
 import re # <--- Make sure re is imported at the top of your script
 import traceback
+import importlib.metadata # For checking installed package versions
+import json          # For parsing PyPI response
+import requests      # For checking latest version on PyPI
 
 matplotlib.use("TkAgg")  # Use Tkinter backend for Matplotlib
 import matplotlib.pyplot as plt
@@ -66,6 +69,76 @@ if HAS_NEWS_LIBS:
     newspaper_config.request_timeout = 15  # Add timeout
     newspaper_config.fetch_images = False  # Don't need images
     newspaper_config.memoize_articles = False  # Disable caching if not needed across runs
+
+MIN_YFINANCE_VERSION = "0.2.58" # Or if you prefer, a slightly older known good one like "0.2.55"
+
+try:
+    from packaging.version import parse as parse_version
+except ImportError:
+    # Fallback or error if packaging is not available
+    # For simplicity in this example, we'll assume it might be missing
+    # and just use string comparison, though parse_version is better.
+    print("Warning: 'packaging' library not found. Version comparison might be less robust.")
+    print("Consider adding 'packaging' to your requirements.txt")
+    def parse_version(version_str): # Simple fallback
+        return version_str # This makes comparison lexicographical
+
+def check_yfinance_version():
+    """
+    Checks the installed yfinance version against the latest on PyPI and a minimum required,
+    using importlib.metadata.
+    Prompts the user to update if their version is too old or not the latest.
+    """
+    try:
+        # --- UPDATED: Use importlib.metadata ---
+        installed_version_str = importlib.metadata.version("yfinance")
+        installed_version = parse_version(installed_version_str)
+        print(f"Installed yfinance version: {installed_version_str}")
+
+        min_version_obj = parse_version(MIN_YFINANCE_VERSION)
+        if installed_version < min_version_obj:
+            messagebox.showwarning("yfinance Update Recommended",
+                                   f"Your installed yfinance version ({installed_version_str}) is older than the recommended minimum ({MIN_YFINANCE_VERSION}).\n\n"
+                                   f"Older versions might have issues fetching data.\n"
+                                   f"Please update yfinance by running:\n\n"
+                                   f"pip install --upgrade yfinance\n\n"
+                                   f"in your terminal/command prompt.",
+                                   parent=app.root if 'app' in globals() and app.root and app.root.winfo_exists() else None)
+            return
+
+        try:
+            response = requests.get("https://pypi.org/pypi/yfinance/json", timeout=5)
+            response.raise_for_status()
+            latest_version_str = response.json()["info"]["version"]
+            latest_version_obj = parse_version(latest_version_str)
+            print(f"Latest yfinance version on PyPI: {latest_version_str}")
+
+            if installed_version < latest_version_obj:
+                proceed = messagebox.askyesno("yfinance Update Available",
+                                             f"A newer version of yfinance ({latest_version_str}) is available (you have {installed_version_str}).\n\n"
+                                             f"It's recommended to keep yfinance updated for the best data fetching experience.\n\n"
+                                             f"Would you like to open instructions on how to update?",
+                                             parent=app.root if 'app' in globals() and app.root and app.root.winfo_exists() else None)
+                if proceed:
+                    webbrowser.open("https://pypi.org/project/yfinance/#installation")
+            # else:
+            #     print("yfinance is up to date.")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Could not check for latest yfinance version on PyPI: {e}")
+        except KeyError:
+            print("Could not parse latest yfinance version from PyPI response.")
+
+    # --- UPDATED: Exception type ---
+    except importlib.metadata.PackageNotFoundError:
+        print("yfinance library not found. Please install it.")
+        messagebox.showerror("yfinance Not Found",
+                             "The yfinance library is not installed. This application requires it to fetch stock data.\n\n"
+                             "Please install it by running:\n\npip install yfinance",
+                             parent=app.root if 'app' in globals() and app.root and app.root.winfo_exists() else None)
+    except Exception as e:
+        print(f"An error occurred while checking yfinance version: {e}")
+        traceback.print_exc() # Good to add traceback here for unexpected errors
 
 # --- Helper Function for Resource Path (Dev vs. Bundle) ---
 def resource_path(relative_path):
@@ -196,6 +269,7 @@ def compute_rsi(series, period=14):
 
 
 class StockAnalysisApp:
+    APP_VERSION = "1.0.1" # <<--- MANUALLY UPDATE THIS FOR EACH RELEASE
     def __init__(self):
         print("DEBUG: Initializing StockAnalysisApp...") # Add debug print
         self.root = tk.Tk()
@@ -215,10 +289,40 @@ class StockAnalysisApp:
         # Initialize the result variable here too
         self.initial_dialog_result = tk.StringVar(value="cancel")
         # --- MAKE ROOT INVISIBLE --- <<< ADD THESE LINES
-        self.root.title("") # No title
+        print(f"Stock Analysis PC Version: {self.APP_VERSION}")
+        self.root.title(f"Stock Analysis PC v{self.APP_VERSION}") # Add version to root title (though root is hidden)
         self.root.geometry("1x1-0-0") # Tiny size, off-screen top-left
         print("DEBUG: Root window created (Made nearly invisible).")
         self.plot_canvas_widget = None # Make sure this is initialized
+
+
+    # Define your GitHub username and repository name
+    GITHUB_USERNAME = "Desloo"  # <<--- YOUR GITHUB USERNAME
+    GITHUB_REPO_NAME = "Stock_Analyzer"  # <<--- YOUR GITHUB REPO NAME
+
+    def check_for_app_updates(self,parent=None):
+       """Opens the GitHub Releases page for the application."""
+       releases_url = f"https://github.com/{self.GITHUB_USERNAME}/{self.GITHUB_REPO_NAME}/releases"
+       print(f"Opening releases page: {releases_url}")
+       if parent is None:
+           # Fallback if no parent is explicitly passed
+           parent_for_msgbox = self.plot_window if self.plot_window and self.plot_window.winfo_exists() else self.root
+       elif parent.winfo_exists():  # Check if the passed parent exists
+           parent_for_msgbox = parent
+       else:  # Fallback if passed parent doesn't exist (shouldn't happen if called correctly)
+           parent_for_msgbox = self.root
+       try:
+           current_app_version = getattr(self, 'APP_VERSION', 'Unknown')  # Get APP_VERSION safely
+           messagebox.showinfo("Check for Updates",
+                               f"You are currently running version: {self.APP_VERSION}.\n\n"  # Add this line
+                               f"This will open your web browser to the application's download page "
+                                f"where you can find the latest version:\n\n{releases_url}\n\n"
+                                f"Please compare the version you have with the latest one available there.", parent=parent_for_msgbox)
+           webbrowser.open_new_tab(releases_url)
+       except Exception as e:
+            print(f"Error opening releases page: {e}")
+            messagebox.showerror("Error", f"Could not open the update page:\n{e}",
+                                parent=self.plot_window if self.plot_window and self.plot_window.winfo_exists() else self.root)
 
     # --- REVISED Initial Dialog Function (Called BEFORE mainloop) ---
     def show_initial_dialog(self):
@@ -242,6 +346,13 @@ class StockAnalysisApp:
             print("DEBUG: Documentation button clicked.")
             self.open_documentation()
             if dialog and dialog.winfo_exists(): dialog.lift()
+        # --- ADDED: Function for the new button ---
+        def on_check_updates():
+            print("DEBUG: Check for Updates button clicked from initial dialog.")
+            # We need a parent for the messagebox. If the dialog exists, use it. Otherwise, use root.
+            parent_window = dialog if dialog and dialog.winfo_exists() else self.root
+            self.check_for_app_updates(parent=parent_window) # Pass the parent
+            if dialog and dialog.winfo_exists(): dialog.lift() # Bring dialog back to front if messagebox was shown
         def on_cancel():
             print("DEBUG: Dialog closed via X or implicitly cancelled.")
             self.initial_dialog_result.set("cancel")
@@ -268,6 +379,10 @@ class StockAnalysisApp:
             button_frame = tk.Frame(frame); button_frame.pack(side="bottom", fill="x", pady=(5, 0))
             print("DEBUG: Creating Docs Button...")
             docs_btn = tk.Button(button_frame, text="Documentation", command=on_docs, width=16); docs_btn.pack(side="right", padx=(12, 0))
+            # --- ADDED THIS BUTTON ---
+            print("DEBUG: Creating Check update Button...")
+            updates_btn = tk.Button(button_frame, text="Check for Updates", command=on_check_updates, width=18)
+            updates_btn.pack(side="right", padx=(12,0)) # Place it to the left of the Docs button
             print("DEBUG: Creating OK Button...")
             ok_btn = tk.Button(button_frame, text="   OK   ", command=on_ok, width=10); ok_btn.pack(side="right")
             print("DEBUG: Buttons packed.")
@@ -280,7 +395,7 @@ class StockAnalysisApp:
             print("DEBUG: Updating idletasks for geometry...")
             dialog.update_idletasks() # Calculate size
             width = dialog.winfo_reqwidth(); height = dialog.winfo_reqheight()
-            if width < 100 or height < 50: width, height = 400, 180
+            if width < 450 or height < 50: width, height = 450, 200 # Increased min width
             screen_w = dialog.winfo_screenwidth(); screen_h = dialog.winfo_screenheight()
             x = (screen_w // 2) - (width // 2); y = (screen_h // 2) - (height // 2)
             dialog.geometry(f'{width}x{height}+{x}+{y}')
@@ -810,7 +925,7 @@ class StockAnalysisApp:
         try:
             print("DEBUG [get_news_sentiment]: Starting GDELT search...")
             f_news = Filters(keyword=query_keyword, start_date=start_date.strftime("%Y-%m-%d"),
-                             end_date=end_date.strftime("%Y-%m-%d"), num_records=200)
+                             end_date=end_date.strftime("%Y-%m-%d"), num_records=100)
             gd_news = GdeltDoc()
             articles_df = gd_news.article_search(f_news)
             print(f"DEBUG: GDELT search returned {len(articles_df)} potential articles.")
@@ -1993,6 +2108,10 @@ class StockAnalysisApp:
     def run(self):
         """Shows initial dialog, withdraws root if OK, then starts app flow."""
         print("DEBUG: Entered run() method.")
+
+        # --- ADD THIS CALL ---
+        check_yfinance_version() # Check yfinance before showing any UI if possible
+        # --------------------
 
         # --- Call the Introduction/Initial Dialog FIRST (while root is visible) ---
         choice = self.show_initial_dialog() # This now blocks until dialog closes
