@@ -97,7 +97,13 @@ Mathematical Model Breakdown:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details. *(e.g., MIT License)*
+Copyright (c) 2025 Desloo. **All Rights Reserved.**
+
+This project is NOT licensed under an open-source license. You may download and run the provided executable for personal, non-commercial evaluation and view the source code for personal educational understanding only.
+
+**Any other use, including but not limited to modification, redistribution, use in other projects (commercial or non-commercial), or use as educational material, is strictly prohibited without prior express written permission from Desloo.**
+
+Please see the [COPYRIGHT.md](./COPYRIGHT.md) file for full details and contact information for permissions.
 
 ## Feedback & Contact
 
